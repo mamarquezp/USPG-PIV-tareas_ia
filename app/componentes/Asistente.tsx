@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 
 export default function Asistente() {
   const [entrada, setEntrada] = useState('');
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error } = useChat();
+  const ocupado = status === 'submitted' || status === 'streaming';
 
   // Cuando el asistente termina de hablar puede haber creado tareas con
   // sus herramientas: le avisamos a la lista que se recargue.
@@ -53,6 +54,13 @@ export default function Asistente() {
         ))}
 
         {status === 'submitted' ? <p className="apagado">Pensando…</p> : null}
+
+        {/* Si el modelo falla, se indica para que no solo se quede callado (esto por el límite de solicitudes gratis)*/}
+        {error ? (
+          <p className="error">
+            Lo siento, por ahora no puedo responder. Intenta de nuevo más tarde.
+          </p>
+        ) : null}
       </div>
 
       <form
@@ -70,7 +78,7 @@ export default function Asistente() {
           placeholder="Escríbele al asistente…"
           autoComplete="off"
         />
-        <button className="boton" type="submit" disabled={status !== 'ready'}>
+        <button className="boton" type="submit" disabled={ocupado}>
           Enviar
         </button>
       </form>
